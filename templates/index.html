@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head><title>Allure Portal</title></head>
+<body>
+<h1>Allure Portal</h1>
+<p>Добро пожаловать!</p>
+<h1>Allure Portal</h1>
+
+<table border="1">
+<tr>
+    <th>Дата</th>
+    <th>Путь</th>
+    <th>Успех</th>
+    <th>UUID</th>
+</tr>
+
+{% for r in reports %}
+<tr>
+    <td>{{ r.created_at }}</td>
+    <td>{{ r.path }}</td>
+    <td>{{ r.success_rate|floatformat:2 }}%</td>
+    <td>{{ r.uuid }}</td>
+</tr>
+{% endfor %}
+</table>
+</body>
+</html>
