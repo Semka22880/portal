@@ -1,0 +1,93 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Билд {{ build.build_number }} — Детали</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f9f9f9; }
+        h1 { color: #2c3e50; }
+        h2 { color: #34495e; border-bottom: 2px solid #eee; padding-bottom: 8px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f5f5f5; }
+        .passed { color: green; font-weight: bold; }
+        .failed { color: red; font-weight: bold; }
+        .skipped { color: #999; }
+        .status-icon { font-size: 1.4em; }
+        a { color: #2980b9; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .back-link { margin: 20px 0; display: inline-block; }
+        .summary { background: #ecf0f1; padding: 15px; border-radius: 6px; margin-bottom: 25px; }
+    </style>
+</head>
+<body>
+
+    <h1>Билд <strong>{{ build.build_number }}</strong></h1>
+    <p>Дата создания билда: <strong>{{ build.date }}</strong></p>
+
+    <a href="{% url 'build_list' %}" class="back-link">← Все билды</a>
+
+    {% for run in test_runs %}
+        <div class="summary">
+            <strong>{{ run.architecture }}</strong> •
+            Дата прогона: <strong>{{ run.run_date }}</strong> •
+            Пройдено: <span class="passed">{{ run.passed_tests }}</span> /
+            Упало: <span class="failed">{{ run.failed_tests }}</span> /
+            Пропущено: <span class="skipped">{{ run.skipped_tests }}</span> •
+            Всего: <strong>{{ run.total_tests }}</strong>
+            {% if run.allure_report_url %}
+                • <a href="{{ run.allure_report_url }}" target="_blank">Открыть в Allure ↗</a>
+            {% endif %}
+        </div>
+
+        <h2>Список тестов</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th width="50"> </th>
+                    <th>Название теста</th>
+                    <th width="120">Дата</th>
+                    <th width="100">Статус</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for case in run.test_cases.all %}
+                    <tr>
+                        <td class="status-icon">
+                            {% if case.status == "passed" %}
+                                <span class="passed">Passed</span>
+                            {% elif case.status == "failed" %}
+                                <span class="failed">Failed</span>
+                            {% else %}
+                                <span class="skipped">Skipped</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <!-- Кликабельная ссылка на историю теста — вот она! -->
+                            <a href="{% url 'test_history' case.test_name|urlencode %}">
+                                {{ case.test_name }}
+                            </a>
+                        </td>
+                        <td>{{ case.execution_date }}</td>
+                        <td>
+                            <strong class="{% if case.status == 'passed' %}passed{% elif case.status == 'failed' %}failed{% else %}skipped{% endif %}">
+                                {{ case.status|upper }}
+                            </strong>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4" style="text-align:center; color:#999;">
+                            Тесты не загружены
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% empty %}
+        <p style="color:#999; font-style:italic;">Для этого билда ещё нет загруженных прогонов.</p>
+    {% endfor %}
+
+</body>
+</html>

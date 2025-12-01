@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Список билдов</title>
+</head>
+<body>
+    <h1>Список билдов</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Номер билда</th>
+                <th>Дата</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for build in builds %}
+            <tr>
+                <td>{{ build.build_number }}</td>
+                <td>{{ build.date }}</td>
+                <td><a href="{% url 'build_detail' build.id %}">{{ build.build_number }}</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="2">Нет билдов</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

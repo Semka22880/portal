@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>История теста: {{ test_name }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        h1 { color: #333; }
+        .passed { color: green; font-weight: bold; }
+        .failed { color: red; font-weight: bold; }
+        .skipped { color: gray; }
+        .last-success { background: #e6f7e6; padding: 5px; border-radius: 4px; }
+        ul { list-style: none; padding: 0; }
+        li { padding: 8px 0; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>История выполнения теста</h1>
+    <h2>{{ test_name }}</h2>
+
+    <p><a href="javascript:history.back()">← Назад к билду</a></p>
+
+    <ul>
+    {% for run in runs %}
+        <li>
+            {% if run.status == 'passed' %}✔{% elif run.status == 'failed' %}✘{% else %}⚠{% endif %}
+            <strong class="{% if run.status == 'passed' %}passed{% elif run.status == 'failed' %}failed{% else %}skipped{% endif %}">
+                {{ run.status|upper }}
+            </strong>
+            — {{ run.execution_date }}
+            — билд <a href="{% url 'build_detail' run.test_run.build.id %}">{{ run.test_run.build.build_number }}</a>
+            {% if run.execution_date == last_success %}
+                <span class="last-success"> ← последний успешный</span>
+            {% endif %}
+        </li>
+    {% empty %}
+        <li>История отсутствует</li>
+    {% endfor %}
+    </ul>
+</body>
+</html>

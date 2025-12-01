@@ -1,37 +1,33 @@
 from django.db import models
 
-class Report(models.Model):
-    uuid = models.CharField(max_length=64, unique=True)
-    path = models.CharField(max_length=255)
-    created_at = models.DateTimeField()
-    report_url = models.URLField()
-
-    total = models.IntegerField(default=0)
-    passed = models.IntegerField(default=0)
-    failed = models.IntegerField(default=0)
-    skipped = models.IntegerField(default=0)
-    success_rate = models.FloatField(default=0.0)
+class Build(models.Model):
+    build_number = models.CharField(max_length=50, unique=True)  # Номер билда, e.g., 'SMK-MOB-T17-593'
+    date = models.DateField()  # Дата билда
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.path} — {self.created_at.strftime('%Y-%m-%d %H:%M:%S')}"
+        return f"Build {self.build_number} ({self.date})"
 
-
-class TestSuite(models.Model):
-    report = models.ForeignKey(Report, on_delete=models.CASCADE)
-    name = models.CharField(max_length=255)
-    passed = models.IntegerField(default=0)
-    failed = models.IntegerField(default=0)
-    skipped = models.IntegerField(default=0)
-
-    def __str__(self):
-        return self.name
-
-
-class TestCase(models.Model):
-    suite = models.ForeignKey(TestSuite, on_delete=models.CASCADE)
-    name = models.CharField(max_length=255)
-    status = models.CharField(max_length=20)
-    duration = models.FloatField(default=0)
+class TestRun(models.Model):
+    build = models.ForeignKey(Build, on_delete=models.CASCADE, related_name='test_runs')
+    architecture = models.CharField(max_length=100)  # Архитектура, e.g., 'Astra 1.8'
+    os_version = models.CharField(max_length=50)  # Версия ОС
+    status = models.CharField(max_length=20, choices=[('passed', 'Passed'), ('failed', 'Failed'), ('skipped', 'Skipped')])  # Общий статус
+    total_tests = models.IntegerField(default=0)
+    passed_tests = models.IntegerField(default=0)
+    failed_tests = models.IntegerField(default=0)
+    skipped_tests = models.IntegerField(default=0)
+    run_date = models.DateField()  # Дата прогона
+    allure_report_url = models.URLField(blank=True, null=True)  # Ссылка на Allure-отчёт
 
     def __str__(self):
-        return f"{self.name} [{self.status}]"
+        return f"TestRun for {self.build} on {self.architecture}"
+
+class TestCaseRun(models.Model):
+    test_run = models.ForeignKey(TestRun, on_delete=models.CASCADE, related_name='test_cases')
+    test_name = models.CharField(max_length=200)  # Имя теста, e.g., 'astra-ilev1-control'
+    status = models.CharField(max_length=20, choices=[('passed', 'Passed'), ('failed', 'Failed'), ('skipped', 'Skipped')])
+    execution_date = models.DateField()  # Дата выполнения этого теста
+
+    def __str__(self):
+        return f"{self.test_name} in {self.test_run}"
