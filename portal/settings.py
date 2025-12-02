@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'reports',
     'django_crontab',
+    'django.contrib.humanize'
 ]
 
 MIDDLEWARE = [

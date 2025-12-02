@@ -5,6 +5,8 @@ class Build(models.Model):
     date = models.DateField()  # Дата билда
     created_at = models.DateTimeField(auto_now_add=True)
 
+    build_type=models.CharField(max_length=59, default='Other', db_index=True)
+
     def __str__(self):
         return f"Build {self.build_number} ({self.date})"
 

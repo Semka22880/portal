@@ -1,11 +1,34 @@
+# reports/views.py
 from django.shortcuts import render
-
-# Create your views here.
 from .models import Build
+from django.db.models import Count
+
 
 def build_list(request):
-    builds = Build.objects.all().order_by('-date')  # Сортировка по дате descending
-    return render(request, 'reports/build_list.html', {'builds': builds})
+    selected_type = request.GET.get('type', 'all')
+
+    # Все билды
+    builds = Build.objects.all().order_by('-date')
+
+    # Фильтр по типу
+    if selected_type != 'all':
+        builds = builds.filter(build_type=selected_type)
+
+    # Подсчёт для вкладок (делаем один запрос!)
+    type_counts = dict(
+        Build.objects.values('build_type')
+                     .annotate(count=Count('id'))
+                     .values_list('build_type', 'count')
+    )
+
+    context = {
+        'builds': builds,
+        'selected_type': selected_type,
+        'type_counts': type_counts,
+        'total_builds': Build.objects.count(),
+    }
+    return render(request, 'reports/build_list.html', context)
+
 
 
 from django.shortcuts import render, get_object_or_404

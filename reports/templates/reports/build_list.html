@@ -1,28 +1,49 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Список билдов</title>
-</head>
-<body>
-    <h1>Список билдов</h1>
-    <table border="1">
-        <thead>
+<!-- reports/templates/reports/build_list.html -->
+<h1>Все прогоны</h1>
+
+<div class="tabs" style="margin:20px 0; padding:15px; background:#f9f9f9; border-radius:10px; display:flex; gap:15px; flex-wrap:wrap;">
+    <a href="?type=all" class="{% if selected_type == 'all' %}active{% endif %}">
+        Все ({{ total_builds }})
+    </a>
+    {% for type, count in type_counts.items %}
+        <a href="?type={{ type }}" class="{% if selected_type == type %}active{% endif %}">
+            {{ type }} ({{ count }})
+        </a>
+    {% endfor %}
+</div>
+
+<style>
+    .tabs a {padding:10px 18px; background:white; border:2px solid #ddd; border-radius:8px; text-decoration:none; color:#333; font-weight:500; transition:all .2s;}
+    .tabs a:hover, .tabs a.active {background:#007bff; color:white; border-color:#007bff;}
+    table {width:100%; border-collapse:collapse; margin-top:20px;}
+    th, td {padding:12px; border:1px solid #ddd; text-align:left;}
+    th {background:#eee;}
+    tr:hover {background:#f0f8ff;}
+    .build-link {font-weight:600; color:#007bff;}
+    .build-link:hover {text-decoration:underline;}
+</style>
+
+<table>
+    <thead>
+        <tr>
+            <th>Тип</th>
+            <th>Билд</th>
+            <th>Дата</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for build in builds %}
             <tr>
-                <th>Номер билда</th>
-                <th>Дата</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for build in builds %}
-            <tr>
-                <td>{{ build.build_number }}</td>
+                <td><strong>{{ build.build_type }}</strong></td>
+                <td>
+                    <a href="{% url 'build_detail' build.id %}" class="build-link">
+                        {{ build.build_number }}
+                    </a>
+                </td>
                 <td>{{ build.date }}</td>
-                <td><a href="{% url 'build_detail' build.id %}">{{ build.build_number }}</a></td>
             </tr>
-            {% empty %}
-            <tr><td colspan="2">Нет билдов</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</body>
-</html>
+        {% empty %}
+            <tr><td colspan="3" style="text-align:center; padding:30px; color:#888;">Нет билдов</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
