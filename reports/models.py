@@ -1,10 +1,10 @@
 from django.db import models
 
 class Build(models.Model):
-    build_number = models.CharField(max_length=50, unique=True)  # Номер билда, e.g., 'SMK-MOB-T17-593'
-    date = models.DateField()  # Дата билда
+    build_number = models.CharField(max_length=50)  # Номер билда, e.g., 'SMK-MOB-T17-593'
+    date = models.DateField(null = True, blank = True)  # Дата билда
     created_at = models.DateTimeField(auto_now_add=True)
-
+    uuid = models.CharField(max_length=50, unique = True, blank=True, null = True)
     build_type=models.CharField(max_length=59, default='Other', db_index=True)
 
     def __str__(self):
@@ -17,7 +17,7 @@ class TestRun(models.Model):
         related_name='test_runs'
     )
     architecture = models.CharField(max_length=50)
-    run_date = models.DateField()
+    run_date = models.DateField(null =True, blank = True)
     allure_report_url = models.URLField()
     total_tests = models.IntegerField(default=0)
     passed_tests = models.IntegerField(default=0)

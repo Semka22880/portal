@@ -2,7 +2,11 @@
 <a href="{% url 'build_list' %}">Назад к списку билдов</a>
 
 <h1>{{ build.build_type }} — {{ build.build_number }}</h1>
-<p><strong>Дата:</strong> {{ build.date }}</p>
+<p><strong>Дата:</strong> {% if build.date %}
+                            {{ build.date }}
+                        {% else %}
+                            <span style="color:#888; font-style:italic;">дата неизвестна</span>
+                        {% endif %}</p>
 
 {% for run in test_runs %}
 <div style="margin: 30px 0; padding: 20px; background: #f8f9fa; border-radius: 8px;">
