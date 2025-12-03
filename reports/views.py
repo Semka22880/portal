@@ -1,58 +1,59 @@
 # reports/views.py
-from django.shortcuts import render
-from .models import Build
-from django.db.models import Count
+from django.shortcuts import render, get_object_or_404
+from django.db.models import Count, Prefetch
+from .models import Build, TestRun, TestCaseRun
 
 
 def build_list(request):
+    """Список всех билдов с фильтрами по типу"""
     selected_type = request.GET.get('type', 'all')
-
-    # Все билды
+    
     builds = Build.objects.all().order_by('-date')
-
-    # Фильтр по типу
+    
     if selected_type != 'all':
         builds = builds.filter(build_type=selected_type)
-
-    # Подсчёт для вкладок (делаем один запрос!)
-    type_counts = dict(
-        Build.objects.values('build_type')
-                     .annotate(count=Count('id'))
-                     .values_list('build_type', 'count')
-    )
-
+    
+    type_counts = Build.objects.values('build_type').annotate(count=Count('id'))
+    type_counts_dict = {item['build_type']: item['count'] for item in type_counts}
+    
     context = {
         'builds': builds,
         'selected_type': selected_type,
-        'type_counts': type_counts,
+        'type_counts': type_counts_dict,
         'total_builds': Build.objects.count(),
     }
     return render(request, 'reports/build_list.html', context)
 
 
-
-from django.shortcuts import render, get_object_or_404
-from .models import Build
-
 def build_detail(request, build_id):
+    """Детальная страница билда — со всеми тестами"""
     build = get_object_or_404(Build, id=build_id)
-    test_runs = build.test_runs.all()
-    return render(request, 'reports/build_detail.html', {'build': build, 'test_runs': test_runs})
-
-
-from django.db.models import Max
-from .models import TestCaseRun
-
-def test_history(request, test_name):
-    runs = TestCaseRun.objects.filter(test_name=test_name) \
-                              .select_related('test_run__build') \
-                              .order_by('-execution_date')
     
-    last_success = runs.filter(status='passed').first()
-    last_success_date = last_success.execution_date if last_success else None
-
-    return render(request, 'reports/test_history.html', {
-        'test_name': test_name,
-        'runs': runs,
-        'last_success': last_success_date
+    # Подгружаем все тесты сразу — без N+1 запросов
+    test_runs = build.test_runs.all().prefetch_related(
+        Prefetch('cases', queryset=TestCaseRun.objects.all())
+    )
+    
+    return render(request, 'reports/build_detail.html', {
+        'build': build,
+        'test_runs': test_runs,
     })
+
+
+def test_history(request, test_name, architecture):
+    """История конкретного теста — только по выбранной архитектуре"""
+    runs = TestCaseRun.objects.filter(
+        test_name=test_name,
+        architecture=architecture
+    ).select_related('test_run__build').order_by('-execution_date')
+
+    context = {
+        'test_name': test_name,
+        'architecture': architecture,
+        'runs': runs,
+        'total_runs': runs.count(),
+        'passed_count': runs.filter(status='passed').count(),
+        'failed_count': runs.filter(status='failed').count(),
+        'skipped_count': runs.filter(status='skipped').count(),
+    }
+    return render(request, 'reports/test_history.html', context)

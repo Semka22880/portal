@@ -17,6 +17,10 @@
 <body>
     <h1>История выполнения теста</h1>
     <h2>{{ test_name }}</h2>
+    {% if architecture %}
+    <p>Фильтр по архитектуре: {{architecture}}
+    </p>
+    {% endif %}
 
     <p><a href="javascript:history.back()">← Назад к билду</a></p>
 
