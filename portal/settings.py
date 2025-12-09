@@ -103,9 +103,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-CRONJOBS = [
-    ('*/30 * * * *', 'reports.management.commands.auto_import_allure.Command', ['--limit', '0']),
-]
 
 
 # Internationalization
@@ -119,7 +116,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-CRONTAB_USER = 'masemenov'
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 

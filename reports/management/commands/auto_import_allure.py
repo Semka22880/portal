@@ -66,12 +66,15 @@ class Command(BaseCommand):
 
     def get_type_and_arch(self, name):
         n = name.upper()
-        if n.startswith('SMK-MOB-T17'):    return 'Mobile 17', 'Mobile 17'
-        if n.startswith('SMK-MOB-T18'):    return 'Mobile 18', 'Mobile 18'
-        if n.startswith('SMK-RUN18-'):  return 'ALSE 18', 'ALSE 18'
-        if n.startswith('SMK-RUN17-'):  return 'ALSE 17', 'ALSE 17'
-        if n.startswith('SMK-INIT18-'): return 'Init18', 'Init18'
-        if n.startswith('SMK-BNCH-'):   return 'Benchmark', 'Benchmark'
+        #if n.startswith('SMK-MOB-T17'):    return 'Mobile 17', 'Mobile 17'
+        #if n.startswith('SMK-MOB-T18'):    return 'Mobile 18', 'Mobile 18'
+        if n.startswith('SMK-RUN18-'):  return 'Astra 1.8', 'Astra 1.8'
+        if n.startswith('SMK-RUN17-'):  return 'Astra 1.7', 'Astra 1.7'
+        if n.startswith('SMK-RUN47-'):  return 'Astra 4.7', 'Astra 4.7'
+        if n.startswith('SMK-RUN48-'):  return 'Astra 4.8', 'Astra 4.8'
+        if n.startswith('SMK-RUN38-'):  return 'Astra 3.8', 'Astra 3.8'
+        #if n.startswith('SMK-INIT18-'): return 'Init18', 'Init18'
+        #if n.startswith('SMK-BNCH-'):   return 'Benchmark', 'Benchmark'
         return 'Other', 'Other'
 
     def handle(self, *args, **options):
@@ -90,6 +93,11 @@ class Command(BaseCommand):
         for idx, rep in enumerate(reports[:limit or None]):
             uuid = rep.get('uuid')
             build_number = rep.get('path') or rep.get('name') or 'unknown'
+            build_number = rep.get('path') or rep.get('name') or ''
+            if not (build_number.startswith('SMK-RUN17-') or build_number.startswith('SMK-RUN18-') or build_number.startswith('SMK-RUN48-') or build_number.startswith('SMK-RUN38-') or build_number.startswith('SMK-RUN47-')):
+                #self.stdout.write(f"[{idx+1}] {build_number} — НЕ RUN17/RUN18, пропускаем")
+                continue
+
 
             if not uuid or not build_number:
                 continue
