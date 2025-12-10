@@ -34,11 +34,11 @@ class Command(BaseCommand):
                 r = requests.get(url, timeout=40)
                 if r.status_code == 200:
                     source = url.split('/')[-1]  # suites.csv или data_suites.csv
-                    self.stdout.write(self.style.SUCCESS(f"  CSV найден: {source}"))
+                    #self.stdout.write(self.style.SUCCESS(f"  CSV найден: {source}"))
                     return r.text, source
             except Exception as e:
                 continue
-        self.stdout.write(self.style.WARNING("  CSV не найден ни по одному пути"))
+        #self.stdout.write(self.style.WARNING("  CSV не найден ни по одному пути"))
         return None, None
 
     def get_build_date_from_csv(self, csv_content, source):
@@ -102,7 +102,7 @@ class Command(BaseCommand):
             if not uuid or not build_number:
                 continue
 
-            self.stdout.write(f"[{idx+1}/{len(reports)}] {build_number} (uuid={uuid[:8]})")
+            #self.stdout.write(f"[{idx+1}/{len(reports)}] {build_number} (uuid={uuid[:8]})")
 
             # Скачиваем CSV — любой из двух форматов
             csv_content, csv_source = self.download_csv(uuid)
@@ -117,7 +117,7 @@ class Command(BaseCommand):
 
 
             if Build.objects.filter(uuid=uuid).exists():
-                self.stdout.write(self.style.NOTICE("  Уже в базе — пропускаем"))
+                #self.stdout.write(self.style.NOTICE("  Уже в базе — пропускаем"))
                 skipped += 1
                 continue
 

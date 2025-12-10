@@ -103,6 +103,12 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+CRONJOBS = [
+    ('*/30 * * * *', 'django.core.management.call_command', ['auto_import_allure', '--use-reports']),
+]
+
+CRONTAB_USER = 'masemenov'
+CRONTAB_COMMAND_PREFIX = 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/masemenov/.local/bin:/home/masemenov/git/portal/venv/bin' 
 
 
 # Internationalization
